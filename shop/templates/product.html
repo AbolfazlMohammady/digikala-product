@@ -1,0 +1,53 @@
+{% extends "base.html" %} {% block content %}
+<!-- Header-->
+
+<br><br><br>
+<div class="container">
+    <div class="card mb-3">
+        <div class="row g-0 ">
+            <div class="col-md-4 ">
+                <img src="{{ product.image.url}}" class="img-fluid rounded-start " alt="... ">
+            </div>
+            <div class="col-md-8 ">
+                <div class="card-body ">
+                    <h5 class="card-title ">{{ product.name }}</h5>
+                    <p class="card-text ">📃توضیحات : {{ product.description }}</p>
+                    {% if product.is_sale %}
+                    <p class="card-text ">💵 قیمت اصلی:<strike>{{ product.price }}</strike>
+                        <br>💵قیمت با تخفیف:{{ product.price_sale}}</p>
+                    {% else %}
+                    <p class="card-text ">💵 قیمت:{{ product.price}}</p>
+                    {% endif %}
+                    <br><br>
+                    <button class="btn btn-outline-dark mt-auto" type="button" id="add-cart" value="{{ product.id}}"> افزودن به سبد خرید</button>
+                    <a class="btn btn-outline-dark mt-auto" href="{% url 'home'%}"> بازگشت به خانه</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br><br><br><br><br>
+<script>
+    // Attach a click event handler to the "add-to-cart" button
+    $(document).on('click', '#add-cart', function(e) {
+        e.preventDefault();
+
+        // Pass the product ID and CSRF token in the request data
+        $.ajax({
+            type: 'POST',
+            url: '{% url "cart_add" %}',
+            data: {
+                product_id: $('#add-cart').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                action: 'post'
+            },
+            success: function(json) {
+                console.log(json)
+                document.getElementsById('cart_quantity').textContent = json.qty
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ": " + xhr.responseText);
+            }
+        });
+    })
+</script> {% endblock %}
